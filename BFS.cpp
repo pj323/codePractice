@@ -1,78 +1,56 @@
 #include <iostream>
-#include <vector>
 #include <queue>
-#include <limits>
+#include <vector>
+#include <unordered_set>
 
 using namespace std;
 
-const int INF = numeric_limits<int>::max();
-
 // Define the graph as an adjacency list
-typedef pair<int, int> pii; // pair representing (node, weight)
-typedef vector<vector<pii>> Graph;
+typedef vector<vector<int>> Graph;
 
-vector<int> dijkstra(const Graph& graph, int start) {
+void bfs(const Graph& graph, int start) {
     int n = graph.size();
-    vector<int> distances(n, INF);
-    distances[start] = 0;
+    vector<bool> visited(n, false);
 
-    // Use a priority queue to keep track of the nodes with the smallest distance
-    priority_queue<pii, vector<pii>, greater<pii>> pq; // min-heap
+    // Queue for BFS
+    queue<int> bfsQueue;
 
-    pq.push({0, start});
+    // Start BFS from the given node
+    bfsQueue.push(start);
+    visited[start] = true;
 
-    while (!pq.empty()) {
-        int current_distance = pq.top().first;
-        int current_node = pq.top().second;
-        pq.pop();
+    while (!bfsQueue.empty()) {
+        int current = bfsQueue.front();
+        bfsQueue.pop();
 
-        // If the current distance is greater than the known distance, skip
-        if (current_distance > distances[current_node]) {
-            continue;
-        }
+        cout << current << " ";
 
-        // Iterate through neighbors
-        for (const auto& neighbor : graph[current_node]) {
-            int neighbor_node = neighbor.first;
-            int weight = neighbor.second;
-            int distance = current_distance + weight;
-
-            // If a shorter path is found, update the distance and push to the priority queue
-            if (distance < distances[neighbor_node]) {
-                distances[neighbor_node] = distance;
-                pq.push({distance, neighbor_node});
+        for (int neighbor : graph[current]) {
+            if (!visited[neighbor]) {
+                bfsQueue.push(neighbor);
+                visited[neighbor] = true;
             }
         }
     }
-
-    return distances;
 }
 
 int main() {
     // Example usage:
-    int n = 4; // number of nodes
+    int n = 6; // number of nodes
     Graph graph(n);
 
-    // Adding edges to the graph
-    graph[0].push_back({1, 1});
-    graph[0].push_back({2, 4});
-    graph[1].push_back({0, 1});
-    graph[1].push_back({2, 2});
-    graph[1].push_back({3, 5});
-    graph[2].push_back({0, 4});
-    graph[2].push_back({1, 2});
-    graph[2].push_back({3, 1});
-    graph[3].push_back({1, 5});
-    graph[3].push_back({2, 1});
+    // Adding edges to the graph (undirected)
+    graph[0] = {1, 2};
+    graph[1] = {0, 2, 3};
+    graph[2] = {0, 1, 4};
+    graph[3] = {1, 5};
+    graph[4] = {2};
+    graph[5] = {3};
 
     int start_node = 0;
-    vector<int> result = dijkstra(graph, start_node);
-
-    // Output the shortest distances
-    cout << "Shortest distances from " << start_node << ":\n";
-    for (int i = 0; i < n; ++i) {
-        cout << "To node " << i << ": " << result[i] << "\n";
-    }
+    
+    cout << "BFS starting from node " << start_node << ":\n";
+    bfs(graph, start_node);
 
     return 0;
 }
